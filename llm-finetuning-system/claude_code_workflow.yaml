@@ -1,0 +1,372 @@
+# Claude Code CLI Workflow Specification
+# LLM Fine-tuning Studio - Agentic Project Creation
+# Project: @Bzcasper/llm-finetuning-studio
+
+name: "LLM Fine-tuning Studio"
+version: "1.0.0"
+description: "A comprehensive web-based platform for fine-tuning large language models using Modal.com infrastructure with React frontend and FastAPI backend"
+
+# Project Architecture Overview
+architecture:
+  type: "full-stack-ml-platform"
+  pattern: "microservices"
+  deployment: "cloud-native"
+  
+infrastructure:
+  primary_compute: "Modal.com"
+  frontend: "React + Vite"
+  backend: "FastAPI + Python"
+  database: "In-memory (production: PostgreSQL)"
+  gpu_access: "Modal GPU instances (A100, H100, H200)"
+
+# Core Components to Create
+components:
+  
+  # Frontend React Application
+  frontend:
+    path: "/"
+    technology: "React 18 + Vite"
+    styling: "Tailwind CSS + shadcn/ui"
+    features:
+      - "Responsive dashboard"
+      - "Training job management"
+      - "Real-time progress monitoring"
+      - "Dataset upload interface"
+      - "Model configuration forms"
+      - "GPU utilization charts"
+      - "Cost tracking dashboard"
+    
+    structure:
+      - "src/components/ui/" # shadcn/ui components
+      - "src/components/dashboard/" # Dashboard components
+      - "src/components/training/" # Training management
+      - "src/hooks/" # Custom React hooks
+      - "src/lib/" # Utility functions
+      - "src/pages/" # Page components
+      - "src/services/" # API services
+    
+    dependencies:
+      - "@vitejs/plugin-react"
+      - "tailwindcss"
+      - "@tailwindcss/vite"
+      - "clsx"
+      - "tailwind-merge"
+      - "lucide-react"
+      - "recharts" # For GPU/training charts
+      - "react-router-dom"
+      - "axios"
+
+  # Backend API System
+  backend:
+    path: "llm-finetuning-system/"
+    technology: "FastAPI + Python"
+    features:
+      - "Training job orchestration"
+      - "Modal.com integration"
+      - "Real-time monitoring"
+      - "Dataset management"
+      - "Authentication system"
+      - "Cost tracking"
+      - "Health monitoring"
+    
+    structure:
+      - "api_server.py" # Main FastAPI application
+      - "api/" # Serverless API endpoints
+      - "core/" # Core ML training logic
+      - "models/" # Pydantic models
+      - "services/" # Business logic services
+      - "utils/" # Utility functions
+      - "config/" # Configuration management
+    
+    dependencies:
+      - "fastapi"
+      - "uvicorn"
+      - "modal"
+      - "transformers"
+      - "torch"
+      - "peft" # LoRA/QLoRA support
+      - "datasets"
+      - "accelerate"
+      - "bitsandbytes"
+      - "pydantic"
+
+  # Modal.com Infrastructure
+  modal_infrastructure:
+    path: "modal/"
+    technology: "Modal Functions"
+    features:
+      - "GPU-accelerated training"
+      - "Model fine-tuning pipelines"
+      - "Distributed computing"
+      - "Cost optimization"
+      - "Auto-scaling"
+    
+    functions:
+      - "fine_tune_llm" # Main training function
+      - "model_inference" # Inference endpoint
+      - "data_preprocessing" # Dataset processing
+      - "model_evaluation" # Performance metrics
+      - "gpu_monitoring" # Resource tracking
+
+# File Structure to Generate
+file_structure:
+  root:
+    - "README.md"
+    - "package.json"
+    - "vite.config.js"
+    - "tailwind.config.js"
+    - "eslint.config.js"
+    - "jsconfig.json"
+    - ".env.example"
+    - ".gitignore"
+    - "docker-compose.yml"
+    - "Dockerfile"
+  
+  frontend:
+    - "src/main.jsx"
+    - "src/App.jsx"
+    - "src/index.css"
+    - "src/lib/utils.js"
+    - "src/hooks/use-mobile.js"
+    - "src/components/ui/button.jsx"
+    - "src/components/ui/card.jsx"
+    - "src/components/ui/input.jsx"
+    - "src/components/ui/progress.jsx"
+    - "src/components/ui/badge.jsx"
+    - "src/components/dashboard/Dashboard.jsx"
+    - "src/components/training/TrainingForm.jsx"
+    - "src/components/training/TrainingProgress.jsx"
+    - "src/components/training/JobList.jsx"
+    - "src/components/monitoring/GPUMetrics.jsx"
+    - "src/components/monitoring/CostTracker.jsx"
+    - "src/services/api.js"
+    - "src/pages/Home.jsx"
+    - "src/pages/Training.jsx"
+    - "src/pages/Models.jsx"
+    - "src/pages/Datasets.jsx"
+  
+  backend:
+    - "llm-finetuning-system/api_server.py"
+    - "llm-finetuning-system/requirements.txt"
+    - "llm-finetuning-system/api/health.py"
+    - "llm-finetuning-system/api/training.py"
+    - "llm-finetuning-system/api/datasets.py"
+    - "llm-finetuning-system/api/models.py"
+    - "llm-finetuning-system/core/modal_client.py"
+    - "llm-finetuning-system/core/training_monitor.py"
+    - "llm-finetuning-system/models/training_config.py"
+    - "llm-finetuning-system/models/training_status.py"
+    - "llm-finetuning-system/services/modal_service.py"
+    - "llm-finetuning-system/services/training_service.py"
+    - "llm-finetuning-system/utils/logging.py"
+    - "llm-finetuning-system/config/settings.py"
+  
+  modal:
+    - "modal/finetune_llm.py"
+    - "modal/inference.py"
+    - "modal/data_processing.py"
+    - "modal/gpu_monitoring.py"
+    - "modal/utils.py"
+    - "modal/requirements.txt"
+
+# Environment Configuration
+environment:
+  development:
+    - "MODAL_TOKEN_ID=your_modal_token_id"
+    - "MODAL_TOKEN_SECRET=your_modal_token_secret"
+    - "ENVIRONMENT=development"
+    - "API_BASE_URL=http://localhost:8000"
+    - "FRONTEND_URL=http://localhost:5173"
+  
+  production:
+    - "MODAL_TOKEN_ID=${MODAL_TOKEN_ID}"
+    - "MODAL_TOKEN_SECRET=${MODAL_TOKEN_SECRET}"
+    - "ENVIRONMENT=production"
+    - "API_BASE_URL=https://your-api-domain.com"
+    - "FRONTEND_URL=https://your-frontend-domain.com"
+
+# Core Features to Implement
+features:
+  training_management:
+    description: "Comprehensive training job management system"
+    components:
+      - "Job creation and configuration"
+      - "Real-time progress tracking"
+      - "Resource monitoring"
+      - "Cost estimation"
+      - "Job cancellation and restart"
+  
+  model_support:
+    description: "Support for various model architectures"
+    supported_models:
+      - "Llama 2/3 (7B, 13B, 70B)"
+      - "Mistral 7B"
+      - "CodeLlama"
+      - "Phi-3"
+      - "Custom HuggingFace models"
+  
+  fine_tuning_techniques:
+    description: "Advanced fine-tuning methods"
+    techniques:
+      - "LoRA (Low-Rank Adaptation)"
+      - "QLoRA (Quantized LoRA)"
+      - "Full fine-tuning"
+      - "4-bit quantization"
+      - "Gradient checkpointing"
+  
+  monitoring_dashboard:
+    description: "Real-time monitoring and analytics"
+    metrics:
+      - "Training loss curves"
+      - "GPU utilization"
+      - "Memory usage"
+      - "Cost tracking"
+      - "Performance metrics"
+
+# API Endpoints to Create
+api_endpoints:
+  training:
+    - "POST /api/training/start"
+    - "GET /api/training/status/{job_id}"
+    - "GET /api/training/logs/{job_id}"
+    - "GET /api/training/jobs"
+    - "DELETE /api/training/{job_id}"
+  
+  data_management:
+    - "GET /api/datasets"
+    - "POST /api/datasets/upload"
+    - "GET /api/models"
+    - "POST /api/models/upload"
+  
+  monitoring:
+    - "GET /api/health"
+    - "GET /api/modal/status"
+    - "POST /api/test/modal"
+    - "GET /api/metrics/{job_id}"
+  
+  system:
+    - "GET /api/system/gpu-types"
+    - "GET /api/system/cost-estimates"
+    - "GET /api/system/usage"
+
+# Deployment Configuration
+deployment:
+  frontend:
+    platform: "Vercel"
+    build_command: "npm run build"
+    output_directory: "dist"
+    node_version: "20"
+  
+  backend:
+    platform: "Vercel Serverless Functions"
+    runtime: "python3.11"
+    environment: "production"
+  
+  modal:
+    platform: "Modal.com"
+    gpu_types: ["A100", "H100", "H200"]
+    auto_scale: true
+    timeout: 3600
+
+# Security Considerations
+security:
+  authentication:
+    - "JWT token-based auth"
+    - "Modal.com credential management"
+    - "Environment variable protection"
+  
+  data_protection:
+    - "Encrypted data transmission"
+    - "Secure file uploads"
+    - "Access control"
+  
+  api_security:
+    - "CORS configuration"
+    - "Rate limiting"
+    - "Input validation"
+
+# Performance Optimizations
+performance:
+  frontend:
+    - "Code splitting"
+    - "Lazy loading"
+    - "Image optimization"
+    - "Bundle size optimization"
+  
+  backend:
+    - "Async/await patterns"
+    - "Connection pooling"
+    - "Caching strategies"
+    - "Background tasks"
+  
+  modal:
+    - "GPU memory optimization"
+    - "Batch processing"
+    - "Model quantization"
+    - "Gradient accumulation"
+
+# Testing Strategy
+testing:
+  frontend:
+    - "Component unit tests"
+    - "Integration tests"
+    - "E2E tests with Playwright"
+  
+  backend:
+    - "API endpoint tests"
+    - "Modal function tests"
+    - "Integration tests"
+  
+  performance:
+    - "Load testing"
+    - "GPU performance benchmarks"
+    - "Cost optimization tests"
+
+# Documentation Requirements
+documentation:
+  user_guides:
+    - "Getting started guide"
+    - "Model selection guide"
+    - "Fine-tuning best practices"
+    - "Cost optimization tips"
+  
+  technical_docs:
+    - "API documentation"
+    - "Architecture overview"
+    - "Deployment guide"
+    - "Troubleshooting guide"
+  
+  examples:
+    - "Sample training configurations"
+    - "Dataset preparation examples"
+    - "Custom model integration"
+
+# Future Enhancements
+roadmap:
+  phase_1:
+    - "Multi-user support"
+    - "Team collaboration"
+    - "Advanced monitoring"
+  
+  phase_2:
+    - "Custom model architectures"
+    - "Experiment tracking"
+    - "A/B testing framework"
+  
+  phase_3:
+    - "Enterprise features"
+    - "On-premise deployment"
+    - "Advanced security"
+
+# Cost Management
+cost_optimization:
+  strategies:
+    - "Spot instance usage"
+    - "Auto-scaling policies"
+    - "Resource monitoring"
+    - "Budget alerts"
+  
+  pricing_tiers:
+    - "Starter: $29/month (15 training jobs)"
+    - "Pro: $99/month (60 training jobs)"
+    - "Enterprise: $499/month (300 training jobs)"

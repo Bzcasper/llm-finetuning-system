@@ -1,0 +1,196 @@
+{
+  "version": 2,
+  "name": "llm-finetuning-studio",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next",
+      "config": {
+        "zeroConfig": true
+      }
+    },
+    {
+      "src": "api/health.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    },
+    {
+      "src": "api/training.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    },
+    {
+      "src": "api/datasets.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    },
+    {
+      "src": "api/modal-status.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.py",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/training/(.*)",
+      "dest": "/api/training.py",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/datasets/(.*)",
+      "dest": "/api/datasets.py",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/modal/status",
+      "dest": "/api/modal-status.py",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/(.*)",
+      "dest": "/frontend/pages/api/auth/$1"
+    },
+    {
+      "src": "/api/stripe/(.*)",
+      "dest": "/frontend/pages/api/stripe/$1"
+    },
+    {
+      "src": "/api/subscription/(.*)",
+      "dest": "/frontend/pages/api/subscription/$1"
+    },
+    {
+      "src": "/api/email/(.*)",
+      "dest": "/frontend/pages/api/email/$1"
+    },
+    {
+      "src": "/api/newsletter/(.*)",
+      "dest": "/frontend/pages/api/newsletter/$1"
+    },
+    {
+      "src": "/api/user/(.*)",
+      "dest": "/frontend/pages/api/user/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ],
+  "env": {
+    "MODAL_PROFILE": "@modal_profile",
+    "MODAL_TOKEN_ID": "@modal_token_id",
+    "MODAL_TOKEN_SECRET": "@modal_token_secret",
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key",
+    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "NEXTAUTH_URL": "@nextauth_url",
+    "DATABASE_URL": "@database_url",
+    "GOOGLE_CLIENT_ID": "@google_client_id",
+    "GOOGLE_CLIENT_SECRET": "@google_client_secret",
+    "GITHUB_ID": "@github_id",
+    "GITHUB_SECRET": "@github_secret",
+    "MINIO_ENDPOINT": "@minio_endpoint",
+    "MINIO_ACCESS_KEY": "@minio_access_key",
+    "MINIO_SECRET_KEY": "@minio_secret_key",
+    "MINIO_SECURE": "@minio_secure",
+    "RESEND_API_KEY": "@resend_api_key",
+    "RESEND_FROM_EMAIL": "@resend_from_email",
+    "ENVIRONMENT": "production",
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "api/*.py": {
+      "runtime": "python3.11",
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "frontend/pages/api/**/*.js": {
+      "runtime": "nodejs20.x",
+      "memory": 256,
+      "maxDuration": 10
+    },
+    "frontend/pages/api/**/*.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 256,
+      "maxDuration": 10
+    }
+  },
+  "regions": ["iad1", "sfo1"],
+  "installCommand": "cd frontend && npm ci && npx prisma generate",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://llm-finetuning-studio.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Requested-With"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "github": {
+    "silent": true
+  }
+}
+
