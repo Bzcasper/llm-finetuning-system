@@ -14,6 +14,7 @@ This guide will help you configure all the necessary secrets for your GitHub rep
 ### 1. Modal.com Secrets (Required for AI Model Training)
 
 **MODAL_TOKEN_ID**
+
 ```
 Description: Modal.com API Token ID for GPU-based model training
 How to get:
@@ -26,6 +27,7 @@ Value: [Your Modal Token ID]
 ```
 
 **MODAL_TOKEN_SECRET**
+
 ```
 Description: Modal.com API Token Secret
 How to get:
@@ -37,6 +39,7 @@ Value: [Your Modal Token Secret]
 ### 2. Vercel Deployment Secrets (Required for Frontend Hosting)
 
 **VERCEL_TOKEN**
+
 ```
 Description: Vercel API token for deployment automation
 How to get:
@@ -49,6 +52,7 @@ Value: [Your Vercel Token]
 ```
 
 **ORG_ID**
+
 ```
 Description: Vercel Organization ID
 How to get:
@@ -59,6 +63,7 @@ Value: [Your Vercel Org ID]
 ```
 
 **PROJECT_ID**
+
 ```
 Description: Vercel Project ID for your LLM Fine-tuning Studio
 How to get:
@@ -72,6 +77,7 @@ Value: [Your Vercel Project ID]
 ### 3. Database Secrets (Required for User Data)
 
 **DATABASE_URL**
+
 ```
 Description: PostgreSQL connection string for production database
 Format: postgresql://username:password@host:port/database
@@ -89,6 +95,7 @@ Value: [Your Database URL]
 ### 4. Authentication Secrets (Required for User Login)
 
 **NEXTAUTH_SECRET**
+
 ```
 Description: Secret key for NextAuth.js session encryption
 How to generate: Use a random 32-character string
@@ -97,6 +104,7 @@ Value: [Your NextAuth Secret - 32 random characters]
 ```
 
 **NEXTAUTH_URL**
+
 ```
 Description: Base URL for NextAuth callbacks
 For Production: https://llm-finetuning-studio.vercel.app
@@ -105,6 +113,7 @@ Value: [Your Production URL]
 ```
 
 **GOOGLE_CLIENT_ID**
+
 ```
 Description: Google OAuth Client ID for Google Sign-in
 How to get:
@@ -118,6 +127,7 @@ Value: [Your Google Client ID]
 ```
 
 **GOOGLE_CLIENT_SECRET**
+
 ```
 Description: Google OAuth Client Secret
 How to get: From the same Google OAuth setup above
@@ -125,6 +135,7 @@ Value: [Your Google Client Secret]
 ```
 
 **GITHUB_ID**
+
 ```
 Description: GitHub OAuth App ID for GitHub Sign-in
 How to get:
@@ -136,6 +147,7 @@ Value: [Your GitHub OAuth Client ID]
 ```
 
 **GITHUB_SECRET**
+
 ```
 Description: GitHub OAuth App Secret
 How to get: From the same GitHub OAuth App setup above
@@ -145,6 +157,7 @@ Value: [Your GitHub OAuth Client Secret]
 ### 5. Payment Processing (Required for Subscriptions)
 
 **STRIPE_SECRET_KEY**
+
 ```
 Description: Stripe secret key for payment processing
 How to get:
@@ -156,6 +169,7 @@ Value: [Your Stripe Secret Key]
 ```
 
 **STRIPE_PUBLISHABLE_KEY**
+
 ```
 Description: Stripe publishable key for frontend
 How to get: From the same Stripe API Keys page
@@ -163,6 +177,7 @@ Value: [Your Stripe Publishable Key]
 ```
 
 **STRIPE_WEBHOOK_SECRET**
+
 ```
 Description: Stripe webhook endpoint secret for event verification
 How to get:
@@ -176,6 +191,7 @@ Value: [Your Stripe Webhook Secret]
 ### 6. Email Service (Required for Notifications)
 
 **RESEND_API_KEY**
+
 ```
 Description: Resend API key for transactional emails
 How to get:
@@ -186,6 +202,7 @@ Value: [Your Resend API Key]
 ```
 
 **RESEND_FROM_EMAIL**
+
 ```
 Description: Verified sender email address
 Format: noreply@yourdomain.com
@@ -196,6 +213,7 @@ Value: [Your verified sender email]
 ### 7. File Storage (Required for Dataset Management)
 
 **MINIO_ENDPOINT**
+
 ```
 Description: MinIO/S3 endpoint for file storage
 Options:
@@ -206,6 +224,7 @@ Value: [Your storage endpoint]
 ```
 
 **MINIO_ACCESS_KEY**
+
 ```
 Description: MinIO/S3 access key
 How to get: From your MinIO admin panel or AWS IAM
@@ -213,6 +232,7 @@ Value: [Your access key]
 ```
 
 **MINIO_SECRET_KEY**
+
 ```
 Description: MinIO/S3 secret key
 How to get: From your MinIO admin panel or AWS IAM
@@ -220,6 +240,7 @@ Value: [Your secret key]
 ```
 
 **MINIO_SECURE**
+
 ```
 Description: Use HTTPS for MinIO connections
 Value: true (for production) or false (for local development)
@@ -228,6 +249,7 @@ Value: true (for production) or false (for local development)
 ### 8. Notifications (Optional)
 
 **SLACK_WEBHOOK**
+
 ```
 Description: Slack webhook URL for deployment notifications
 How to get:
@@ -277,16 +299,19 @@ gh run view [run-id] --log
 ## 🆘 Troubleshooting
 
 **Workflow fails with authentication errors:**
+
 - Double-check all token formats and permissions
 - Ensure tokens haven't expired
 - Verify API quotas aren't exceeded
 
 **Deployment fails:**
+
 - Check Vercel project settings
 - Verify all environment variables are set
 - Review build logs for missing dependencies
 
 **Modal deployment fails:**
+
 - Confirm Modal tokens have GPU access
 - Check Modal account billing and limits
 - Verify Modal CLI authentication

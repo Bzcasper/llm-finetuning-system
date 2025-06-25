@@ -106,14 +106,25 @@ async def list_models():
 # Error handlers
 @api_app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
+    from fastapi.responses import JSONResponse
     logger.error(f"HTTP error: {exc.status_code} - {exc.detail}")
-    return {"error": exc.detail, "status_code": exc.status_code}
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail, "status_code": exc.status_code}
+    )
 
 @api_app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
+    from fastapi.responses import JSONResponse
     logger.error(f"Unexpected error: {str(exc)}")
-    return {"error": "Internal server error", "status_code": 500}
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "status_code": 500}
+    )
 
 if __name__ == "__main__":
     uvicorn.run(api_app, host="0.0.0.0", port=8000)
+
+# Alias for testing
+app = api_app
 

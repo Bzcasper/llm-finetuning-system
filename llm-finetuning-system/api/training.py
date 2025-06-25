@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, validator
 import modal
 from enum import Enum
 
-router = APIRouter(prefix="/api/training", tags=["training"])
+router = APIRouter(prefix="/training", tags=["training"])
 
 # Pydantic Models for Request/Response Validation
 class JobStatus(str, Enum):

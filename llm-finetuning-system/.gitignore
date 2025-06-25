@@ -114,3 +114,4 @@ node_modules/
 *.bin
 data/
 outputs/
+.vercel

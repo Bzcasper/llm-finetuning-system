@@ -42,7 +42,7 @@ def client() -> TestClient:
 
 
 @pytest.fixture
-async def async_client() -> Generator[httpx.AsyncClient, None, None]:
+async def async_client():
     """Async HTTP client for testing."""
     async with httpx.AsyncClient(app=app, base_url="http://test") as ac:
         yield ac

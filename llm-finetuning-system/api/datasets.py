@@ -20,7 +20,7 @@ import aiofiles
 import pandas as pd
 from pathlib import Path as PathLib
 
-router = APIRouter(prefix="/api/datasets", tags=["datasets"])
+router = APIRouter(prefix="/datasets", tags=["datasets"])
 
 # Pydantic Models
 class DatasetType(str, Enum):

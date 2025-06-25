@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Vault Server",
+      "type": "shell",
+      "command": "docker-compose up -d",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stop Vault Server",
+      "type": "shell",
+      "command": "docker-compose down",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "View Vault Containers",
+      "type": "shell",
+      "command": "docker ps -a --filter name=vault",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Vault Logs",
+      "type": "shell",
+      "command": "docker logs vault -f",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Initialize Vault",
+      "type": "shell",
+      "command": "./scripts/init-vault.sh",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}

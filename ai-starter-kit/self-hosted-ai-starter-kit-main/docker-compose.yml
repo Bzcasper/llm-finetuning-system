@@ -1,0 +1,287 @@
+version: "3.8"
+
+###############################################################################
+# GLOBAL ANCHORS & DEFAULTS                                                   #
+###############################################################################
+x-default-env: &default-env
+  POSTGRES_USER: "root"
+  POSTGRES_PASSWORD: "password"
+
+x-n8n-env: &n8n-env
+  DB_TYPE: postgresdb
+  DB_POSTGRESDB_HOST: postgres
+  DB_POSTGRESDB_DATABASE: n8n
+  DB_POSTGRESDB_USER: ${POSTGRES_USER}
+  DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+  N8N_DIAGNOSTICS_ENABLED: "false"
+  N8N_PERSONALIZATION_ENABLED: "false"
+  OLLAMA_HOST: ollama:11434
+
+# --- ORIGINAL SNIPPET ANCHORS (GPU REMOVED, CPU-ONLY) ---------------------- #
+x-service-n8n: &service-n8n
+  image: n8nio/n8n:latest
+  networks: ["demo"]
+  environment: *n8n-env
+  env_file: [.env]
+
+x-service-ollama: &service-ollama
+  image: ollama/ollama:latest # CPU build auto-selected on hosts w/o GPU
+  networks: ["demo"]
+  container_name: ollama
+  restart: unless-stopped
+  ports: ["11434:11434"]
+  volumes: [ollama_storage:/root/.ollama]
+
+x-init-ollama: &init-ollama
+  image: ollama/ollama:latest
+  networks: ["demo"]
+  volumes: [ollama_storage:/root/.ollama]
+  entrypoint: /bin/sh
+  environment: [OLLAMA_HOST=ollama:11434]
+  command: ["-c", "sleep 3; ollama pull mistral:7b-instruct"]
+
+###############################################################################
+# NETWORKS & VOLUMES                                                          #
+###############################################################################
+networks:
+  demo: { driver: bridge }
+  ai_network:
+    driver: bridge
+    ipam:
+      config: [{ subnet: 172.20.0.0/16 }]
+
+volumes:
+  n8n_storage: {}
+  postgres_storage: {}
+  ollama_storage: {}
+  qdrant_storage: {}
+  vault_data: {}
+  minio_data: {}
+  redis_data: {}
+  grafana_data: {}
+  prometheus_data: {}
+  superset_home: {}
+  airflow_dags: {}
+  airflow_logs: {}
+  portainer_data: {}
+  media_storage: {}
+  nginx_logs: {}
+  openhands_workspace: {}
+  modal_apps_storage: {}
+  crawl4ai_output: {}
+  hf_codeact: {} # model cache for CodeActAgent
+
+###############################################################################
+# SERVICES                                                                    #
+###############################################################################
+services:
+  # ------------------------------ CORE DATA ------------------------------- #
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    networks: ["demo", "ai_network"]
+    environment:
+      <<: *default-env
+      POSTGRES_DB: n8n
+    volumes: [postgres_storage:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    hostname: qdrant
+    restart: unless-stopped
+    networks: ["demo", "ai_network"]
+    ports: ["6333:6333", "6334:6334"]
+    volumes: [qdrant_storage:/qdrant/storage]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    networks: ["ai_network"]
+    ports: ["6379:6379"]
+    volumes: [redis_data:/data]
+    command: >
+      redis-server --appendonly yes
+                   --maxmemory 256mb
+                   --maxmemory-policy allkeys-lru
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    networks: ["ai_network"]
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [minio_data:/data]
+    environment:
+      MINIO_ROOT_USER: "root"
+      MINIO_ROOT_PASSWORD: "password"
+      MINIO_CONSOLE_ADDRESS: ":9001"
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: root-token
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -------------------------- SECRETS MANAGEMENT ------------------------- #
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    restart: unless-stopped
+    networks: ["ai_network"]
+    ports: ["8200:8200"]
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root-token
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add: [IPC_LOCK]
+    volumes: [vault_data:/vault/data]
+    command: ["vault", "server", "-dev", "-dev-listen-address=0.0.0.0:8200"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8200/v1/sys/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------- WORKFLOW AUTOMATION (n8n) ---------------------- #
+  # n8n-import:
+  #   <<: *service-n8n
+  #   container_name: n8n-import
+  #   hostname: n8n-import
+  #   entrypoint: /bin/sh
+  #   command:
+  #     - "-c"
+  #     - |
+  #       n8n import:credentials --separate --input=/demo-data/credentials &&
+  #       n8n import:workflow    --separate --input=/demo-data/workflows
+  #   volumes: ["./n8n/demo-data:/demo-data"]
+  #   depends_on: { postgres: { condition: service_healthy } }
+
+  n8n:
+    <<: *service-n8n
+    container_name: n8n
+    hostname: n8n
+    restart: unless-stopped
+    networks: ["demo", "ai_network"]
+    ports: ["5678:5678"]
+    environment:
+      <<: *n8n-env
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: "root"
+      N8N_BASIC_AUTH_PASSWORD: "password"
+      N8N_ENCRYPTION_KEY: modalaikey2024n8nstarter
+      WEBHOOK_URL: http://localhost:5678
+      N8N_AI_ENABLED: "true"
+    volumes:
+      - n8n_storage:/home/node/.n8n
+      - ./n8n/demo-data:/demo-data
+      - ./shared:/data/shared
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  # -------------------- LLM BACKENDS (CPU-ONLY) --------------------------- #
+  ollama:
+    <<: *service-ollama
+    networks: ["demo", "ai_network"]
+    volumes: [ollama_storage:/root/.ollama]
+    environment:
+      OLLAMA_HOST: 0.0.0.0
+      OLLAMA_KEEP_ALIVE: 24h
+      OLLAMA_NUM_PARALLEL: "4"
+      OLLAMA_MAX_LOADED_MODELS: "4"
+      OLLAMA_DEBUG: "false"
+
+  ollama-pull-mistral:
+    <<: *init-ollama
+    container_name: ollama-pull-mistral
+    depends_on: { ollama: { condition: service_started } }
+
+  # --- NEW: CodeActAgent via HuggingFace Text-Generation-Inference (CPU) --- #
+  codeact-tgi:
+    image: ghcr.io/huggingface/text-generation-inference:latest
+    container_name: codeact-tgi
+    restart: unless-stopped
+    networks: ["ai_network"]
+    ports: ["8080:8080"]
+    volumes:
+      - hf_codeact:/data # HF model cache
+    environment:
+      MODEL_ID: xingyaoww/CodeActAgent-Mistral-7b-v0.1
+      QUANTIZE: bitsandbytes # 4-bit quantization for CPU efficiency
+      DISABLE_CUSTOM_KERNELS: "true"
+      MAX_INPUT_LENGTH: "4096"
+      MAX_TOTAL_TOKENS: "8192"
+
+  # ------------------------ AI CODING ASSISTANT --------------------------- #
+  # openhands:
+  #   image: ghcr.io/all-hands-ai/openhands:latest
+  #   container_name: openhands
+  #   restart: unless-stopped
+  #   networks: ["ai_network"]
+  #   ports: ["3000:3000"]
+  #   volumes:
+  #     - openhands_workspace:/opt/workspace
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     WORKSPACE_BASE: /opt/workspace
+  #     LLM_BASE_URL: http://codeact-tgi:8080/v1/completions # <-- use CodeAct
+  #     LLM_MODEL: CodeActAgent-Mistral-7b-v0.1
+  #     VAULT_ADDR: http://vault:8200
+  #     VAULT_TOKEN: root-token
+  #     SANDBOX_RUNTIME_CONTAINER_IMAGE: ghcr.io/all-hands-ai/runtime:latest
+  #   depends_on:
+  #     codeact-tgi: { condition: service_started }
+  #     vault: { condition: service_healthy }
+
+  # --------------------------- CRAWLER ------------------------------------ #
+  # crawl4ai:
+  #   image: ghcr.io/crawl4ai/crawl4ai:latest
+  #   container_name: crawl4ai
+  #   restart: unless-stopped
+  #   networks: ["ai_network"]
+  #   environment:
+  #     OUTPUT_DIR: /data/output
+  #     LOG_LEVEL: INFO
+  #     QDRANT_URL: http://qdrant:6333
+  #     MINIO_ENDPOINT: http://minio:9000
+  #     MINIO_ACCESS_KEY: "root"
+  #     MINIO_SECRET_KEY: "password"
+  #     VAULT_ADDR: http://vault:8200
+  #     VAULT_TOKEN: root-token
+  #   volumes:
+  #     - ./crawl4ai/config:/app/config
+  #     - crawl4ai_output:/data/output
+  #   depends_on:
+  #     qdrant: { condition: service_healthy }
+  #     minio: { condition: service_healthy }
+
+  # ---------------------- WATCHTOWER (Auto-update) ------------------------ #
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    command: --cleanup --interval 86400
+    volumes: [/var/run/docker.sock:/var/run/docker.sock]
+    networks: ["ai_network"]
