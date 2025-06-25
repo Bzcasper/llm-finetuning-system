@@ -7,6 +7,19 @@ from datetime import datetime
 router = APIRouter(tags=["health"])
 
 
+def check_modal_connection() -> bool:
+    """
+    Check if Modal connection is available
+    This function can be mocked in tests
+    """
+    try:
+        # This would contain actual Modal connection check logic
+        # For now, returning False as Modal is not set up
+        return False
+    except Exception:
+        return False
+
+
 @router.get("/health")
 async def health_check() -> Dict[str, Any]:
     """
@@ -16,6 +29,6 @@ async def health_check() -> Dict[str, Any]:
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "environment": os.environ.get("ENVIRONMENT", "development"),
-        "modal_connected": False,  # Will be updated when Modal is properly connected
+        "modal_connected": check_modal_connection(),
         "version": "1.0.0"
     }

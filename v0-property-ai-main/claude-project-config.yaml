@@ -1,0 +1,537 @@
+# PropertyGlow - AI Real Estate Listing Enhancer
+# Claude CLI Agentic Development Configuration
+# This file defines the project structure, tasks, and guidelines for automated development
+
+project:
+  name: "PropertyGlow"
+  description: "AI-powered real estate listing enhancement platform"
+  version: "1.0.0"
+  tech_stack:
+    - "Next.js 15"
+    - "TypeScript"
+    - "Tailwind CSS"
+    - "Neon PostgreSQL"
+    - "NextAuth.js"
+    - "Fal.ai"
+    - "Vercel Blob"
+    - "Stripe"
+
+# Project Context and Guidelines
+context:
+  business_model: "SaaS subscription with pay-per-use credits"
+  target_users: "Real estate agents, brokers, and property managers"
+  core_features:
+    - "AI image enhancement"
+    - "Virtual staging"
+    - "Listing description generation"
+    - "Batch processing"
+    - "Credit-based billing"
+  
+  brand_guidelines:
+    primary_font: "Montserrat (headings), Lato (body)"
+    primary_color: "#0A2342" # Deep Navy
+    secondary_colors: 
+      - "#2E5077" # Slate Gray
+      - "#E5D9B6" # Warm Beige
+    accent_color: "#F5A623" # Golden Yellow
+    design_style: "Clean, minimalist, real estate industry aesthetic"
+
+# Development Phases and Tasks
+phases:
+  phase_1_critical_security:
+    priority: "CRITICAL"
+    duration: "2 weeks"
+    description: "Fix authentication and secure the application"
+    tasks:
+      - task_id: "AUTH_001"
+        title: "Fix NextAuth Configuration"
+        description: "Resolve CLIENT_FETCH_ERROR and properly configure authentication"
+        files:
+          - "lib/auth/config.ts"
+          - "lib/auth/neon-adapter.ts"
+          - "app/api/auth/[...nextauth]/route.ts"
+        requirements:
+          - "Fix database adapter connection issues"
+          - "Implement proper session management"
+          - "Add error handling for auth failures"
+          - "Test Google OAuth integration"
+        acceptance_criteria:
+          - "Users can sign in without CLIENT_FETCH_ERROR"
+          - "Sessions persist correctly"
+          - "OAuth providers work in production"
+
+      - task_id: "SEC_001"
+        title: "Implement API Authentication Middleware"
+        description: "Secure all API routes with proper authentication"
+        files:
+          - "middleware.ts"
+          - "lib/auth/middleware.ts"
+        requirements:
+          - "Create authentication middleware"
+          - "Protect sensitive API routes"
+          - "Implement role-based access control"
+          - "Add rate limiting"
+        acceptance_criteria:
+          - "Unauthenticated users cannot access protected routes"
+          - "Rate limiting prevents abuse"
+          - "Proper error responses for unauthorized access"
+
+      - task_id: "ENV_001"
+        title: "Environment Variable Validation"
+        description: "Add comprehensive environment variable validation"
+        files:
+          - "lib/config.ts"
+          - "lib/env-validation.ts"
+        requirements:
+          - "Validate all required environment variables at startup"
+          - "Provide clear error messages for missing variables"
+          - "Add development vs production configurations"
+        acceptance_criteria:
+          - "Application fails fast with clear errors for missing env vars"
+          - "All integrations have proper configuration validation"
+
+  phase_2_database_business_logic:
+    priority: "HIGH"
+    duration: "2 weeks"
+    description: "Complete database setup and core business features"
+    tasks:
+      - task_id: "DB_001"
+        title: "Complete Database Schema"
+        description: "Finalize all database tables and relationships"
+        files:
+          - "scripts/create-production-schema.sql"
+          - "lib/db/migrations.ts"
+        requirements:
+          - "Create all required tables with proper indexes"
+          - "Add foreign key constraints"
+          - "Implement migration system"
+          - "Add data validation constraints"
+        acceptance_criteria:
+          - "All tables created successfully"
+          - "Proper relationships established"
+          - "Migration system works for schema updates"
+
+      - task_id: "CREDIT_001"
+        title: "Complete Credit System"
+        description: "Implement full credit management system"
+        files:
+          - "lib/credit-system.ts"
+          - "app/api/credits/route.ts"
+          - "components/credit-display.tsx"
+        requirements:
+          - "Credit deduction for image processing"
+          - "Credit purchase integration with Stripe"
+          - "Credit history and tracking"
+          - "Refund system for failed processing"
+        acceptance_criteria:
+          - "Credits deducted correctly for each operation"
+          - "Users can purchase credits"
+          - "Credit history is accurate and accessible"
+
+      - task_id: "STRIPE_001"
+        title: "Stripe Integration"
+        description: "Implement subscription and payment processing"
+        files:
+          - "lib/stripe.ts"
+          - "app/api/stripe/webhook/route.ts"
+          - "components/pricing-plans.tsx"
+        requirements:
+          - "Subscription plan management"
+          - "One-time credit purchases"
+          - "Webhook handling for payment events"
+          - "Invoice generation"
+        acceptance_criteria:
+          - "Users can subscribe to plans"
+          - "Payment processing works correctly"
+          - "Webhooks update user accounts properly"
+
+  phase_3_performance_ux:
+    priority: "HIGH"
+    duration: "2 weeks"
+    description: "Optimize performance and improve user experience"
+    tasks:
+      - task_id: "PERF_001"
+        title: "Image Processing Optimization"
+        description: "Optimize image processing pipeline for performance"
+        files:
+          - "lib/image-processing.ts"
+          - "lib/image-optimization.ts"
+        requirements:
+          - "Implement image compression before processing"
+          - "Add progress tracking for long operations"
+          - "Implement queue system for batch processing"
+          - "Add image format conversion"
+        acceptance_criteria:
+          - "Images process faster with maintained quality"
+          - "Users see progress during processing"
+          - "Batch operations work efficiently"
+
+      - task_id: "UI_001"
+        title: "Enhanced User Interface"
+        description: "Improve UI components and user experience"
+        files:
+          - "components/ui/loading-states.tsx"
+          - "components/ui/toast.tsx"
+          - "components/image-gallery.tsx"
+        requirements:
+          - "Add loading states for all async operations"
+          - "Implement toast notifications"
+          - "Improve mobile responsiveness"
+          - "Add drag-and-drop file upload"
+        acceptance_criteria:
+          - "All operations show appropriate loading states"
+          - "Users receive feedback for all actions"
+          - "Interface works well on mobile devices"
+
+  phase_4_testing_quality:
+    priority: "HIGH"
+    duration: "2 weeks"
+    description: "Implement comprehensive testing suite"
+    tasks:
+      - task_id: "TEST_001"
+        title: "Unit Testing Suite"
+        description: "Add comprehensive unit tests"
+        files:
+          - "__tests__/lib/"
+          - "__tests__/components/"
+          - "jest.config.js"
+        requirements:
+          - "Test all utility functions"
+          - "Test React components"
+          - "Test API route handlers"
+          - "Achieve 80%+ code coverage"
+        acceptance_criteria:
+          - "All critical functions have tests"
+          - "Tests pass consistently"
+          - "Code coverage meets requirements"
+
+      - task_id: "E2E_001"
+        title: "End-to-End Testing"
+        description: "Implement E2E tests for critical user flows"
+        files:
+          - "__tests__/e2e/"
+          - "playwright.config.ts"
+        requirements:
+          - "Test user registration and login"
+          - "Test image upload and processing"
+          - "Test payment flows"
+          - "Test subscription management"
+        acceptance_criteria:
+          - "All critical user journeys work end-to-end"
+          - "Tests run reliably in CI/CD"
+
+  phase_5_monitoring_deployment:
+    priority: "MEDIUM"
+    duration: "1 week"
+    description: "Set up monitoring and prepare for deployment"
+    tasks:
+      - task_id: "MONITOR_001"
+        title: "Application Monitoring"
+        description: "Implement comprehensive monitoring and logging"
+        files:
+          - "lib/monitoring.ts"
+          - "lib/error-tracking.ts"
+        requirements:
+          - "Error tracking with Sentry"
+          - "Performance monitoring"
+          - "User analytics"
+          - "Health check endpoints"
+        acceptance_criteria:
+          - "Errors are tracked and reported"
+          - "Performance metrics are collected"
+          - "Health checks work properly"
+
+      - task_id: "DEPLOY_001"
+        title: "Production Deployment Setup"
+        description: "Configure production environment and deployment"
+        files:
+          - "vercel.json"
+          - ".github/workflows/deploy.yml"
+        requirements:
+          - "Production environment configuration"
+          - "CI/CD pipeline setup"
+          - "Security headers configuration"
+          - "Domain and SSL setup"
+        acceptance_criteria:
+          - "Application deploys successfully to production"
+          - "All security measures are in place"
+          - "CI/CD pipeline works correctly"
+
+  phase_6_compliance_polish:
+    priority: "MEDIUM"
+    duration: "1 week"
+    description: "Add compliance features and final polish"
+    tasks:
+      - task_id: "LEGAL_001"
+        title: "Legal and Compliance"
+        description: "Add required legal pages and GDPR compliance"
+        files:
+          - "app/legal/privacy/page.tsx"
+          - "app/legal/terms/page.tsx"
+          - "lib/gdpr.ts"
+        requirements:
+          - "Privacy policy page"
+          - "Terms of service page"
+          - "GDPR compliance features"
+          - "Cookie consent management"
+        acceptance_criteria:
+          - "All legal pages are complete and accessible"
+          - "GDPR features work correctly"
+          - "Cookie consent is properly implemented"
+
+# File Templates and Code Standards
+templates:
+  react_component:
+    structure: |
+      'use client'
+      
+      import { useState, useEffect } from 'react'
+      import { cn } from '@/lib/utils'
+      
+      interface ComponentProps {
+        className?: string
+      }
+      
+      export function Component({ className }: ComponentProps) {
+        return (
+          <div className={cn("", className)}>
+            {/* Component content */}
+          </div>
+        )
+      }
+
+  api_route:
+    structure: |
+      import { NextRequest, NextResponse } from 'next/server'
+      import { getServerSession } from 'next-auth'
+      import { authOptions } from '@/lib/auth/config'
+      
+      export async function GET(request: NextRequest) {
+        try {
+          const session = await getServerSession(authOptions)
+          if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+          }
+          
+          // Route logic here
+          
+          return NextResponse.json({ success: true })
+        } catch (error) {
+          console.error('API Error:', error)
+          return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+        }
+      }
+
+  database_function:
+    structure: |
+      import { neon } from '@neondatabase/serverless'
+      
+      const sql = neon(process.env.DATABASE_URL!)
+      
+      export async function functionName(params: any) {
+        try {
+          const result = await sql`
+            SELECT * FROM table_name WHERE condition = ${params.value}
+          `
+          return result
+        } catch (error) {
+          console.error('Database error:', error)
+          throw new Error('Database operation failed')
+        }
+      }
+
+# Code Quality Standards
+standards:
+  typescript:
+    - "Use strict TypeScript with proper type definitions"
+    - "Avoid 'any' types - use proper interfaces"
+    - "Use const assertions where appropriate"
+    - "Implement proper error handling with try-catch"
+  
+  react:
+    - "Use functional components with hooks"
+    - "Implement proper prop validation with TypeScript interfaces"
+    - "Use React.memo for performance optimization where needed"
+    - "Follow the PropertyGlow design system colors and fonts"
+  
+  nextjs:
+    - "Use App Router for all new routes"
+    - "Implement proper metadata for SEO"
+    - "Use Server Components where possible"
+    - "Implement proper error boundaries"
+  
+  security:
+    - "Validate all user inputs"
+    - "Sanitize data before database operations"
+    - "Use parameterized queries to prevent SQL injection"
+    - "Implement proper authentication checks"
+  
+  performance:
+    - "Optimize images with next/image"
+    - "Implement lazy loading where appropriate"
+    - "Use React.Suspense for async components"
+    - "Minimize bundle size with dynamic imports"
+
+# Integration Requirements
+integrations:
+  fal_ai:
+    models:
+      - "fal-ai/flux/schnell"
+      - "fal-ai/flux-realism"
+      - "fal-ai/aura-flow"
+    requirements:
+      - "Implement proper error handling for API failures"
+      - "Add retry logic for failed requests"
+      - "Implement progress tracking for long-running operations"
+  
+  stripe:
+    products:
+      - name: "Solo Agent"
+        price: "$49/month"
+        features: ["5 properties", "Basic support"]
+      - name: "Team"
+        price: "$149/month"
+        features: ["25 properties", "Priority support", "Team management"]
+      - name: "Brokerage"
+        price: "$499/month"
+        features: ["100 properties", "White-label options", "API access"]
+    requirements:
+      - "Implement subscription lifecycle management"
+      - "Handle payment failures gracefully"
+      - "Provide clear billing information to users"
+  
+  neon_database:
+    requirements:
+      - "Use connection pooling for optimal performance"
+      - "Implement proper transaction handling"
+      - "Add database health checks"
+      - "Use prepared statements for security"
+
+# Testing Requirements
+testing:
+  unit_tests:
+    coverage_target: 80
+    frameworks: ["Jest", "React Testing Library"]
+    focus_areas:
+      - "Utility functions"
+      - "React components"
+      - "API route handlers"
+      - "Database operations"
+  
+  integration_tests:
+    frameworks: ["Jest", "Supertest"]
+    focus_areas:
+      - "API endpoints"
+      - "Database operations"
+      - "Third-party integrations"
+  
+  e2e_tests:
+    framework: "Playwright"
+    scenarios:
+      - "User registration and login"
+      - "Image upload and processing"
+      - "Credit purchase and usage"
+      - "Subscription management"
+
+# Deployment Configuration
+deployment:
+  platform: "Vercel"
+  environment_variables:
+    required:
+      - "DATABASE_URL"
+      - "NEXTAUTH_SECRET"
+      - "NEXTAUTH_URL"
+      - "GOOGLE_CLIENT_ID"
+      - "GOOGLE_CLIENT_SECRET"
+      - "FAL_KEY"
+      - "BLOB_READ_WRITE_TOKEN"
+      - "STRIPE_SECRET_KEY"
+      - "STRIPE_PUBLISHABLE_KEY"
+      - "STRIPE_WEBHOOK_SECRET"
+    optional:
+      - "SENTRY_DSN"
+      - "ANALYTICS_ID"
+  
+  build_settings:
+    node_version: "18.x"
+    build_command: "npm run build"
+    output_directory: ".next"
+  
+  security_headers:
+    - "X-Frame-Options: DENY"
+    - "X-Content-Type-Options: nosniff"
+    - "Referrer-Policy: strict-origin-when-cross-origin"
+    - "Permissions-Policy: camera=(), microphone=(), geolocation=()"
+
+# Documentation Requirements
+documentation:
+  user_guide:
+    sections:
+      - "Getting Started"
+      - "Uploading Images"
+      - "Enhancement Options"
+      - "Managing Credits"
+      - "Subscription Plans"
+      - "Troubleshooting"
+  
+  api_documentation:
+    format: "OpenAPI 3.0"
+    include:
+      - "Authentication"
+      - "Image Processing Endpoints"
+      - "Credit Management"
+      - "User Management"
+      - "Webhook Endpoints"
+  
+  developer_guide:
+    sections:
+      - "Project Setup"
+      - "Architecture Overview"
+      - "Database Schema"
+      - "API Integration"
+      - "Deployment Process"
+
+# Success Metrics
+metrics:
+  performance:
+    - "Page load time < 3 seconds"
+    - "Image processing time < 30 seconds"
+    - "API response time < 500ms"
+  
+  quality:
+    - "Test coverage > 80%"
+    - "Zero critical security vulnerabilities"
+    - "Lighthouse score > 90"
+  
+  business:
+    - "User conversion rate > 5%"
+    - "Monthly recurring revenue growth"
+    - "Customer satisfaction score > 4.5/5"
+
+# Claude CLI Instructions
+claude_instructions:
+  approach:
+    - "Follow the phase-based development approach"
+    - "Prioritize critical security and authentication issues first"
+    - "Implement comprehensive error handling in all code"
+    - "Follow the established code standards and templates"
+    - "Test each feature thoroughly before moving to the next"
+  
+  code_generation:
+    - "Generate complete, production-ready code"
+    - "Include proper TypeScript types and interfaces"
+    - "Add comprehensive error handling and validation"
+    - "Follow the PropertyGlow design system"
+    - "Include relevant comments and documentation"
+  
+  file_organization:
+    - "Follow the existing project structure"
+    - "Create new directories as needed for organization"
+    - "Use consistent naming conventions"
+    - "Group related functionality together"
+  
+  quality_assurance:
+    - "Generate accompanying tests for new code"
+    - "Validate against the acceptance criteria"
+    - "Ensure code follows security best practices"
+    - "Optimize for performance and maintainability"

@@ -2,6 +2,7 @@
 Pytest configuration and fixtures for the LLM Fine-tuning System tests
 """
 
+from api_server import app
 import pytest
 import asyncio
 import tempfile
@@ -17,8 +18,6 @@ from faker import Faker
 # Add parent directory to path for imports
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from api_server import app
 
 
 @pytest.fixture(scope="session")
@@ -127,7 +126,8 @@ def mock_modal_volume():
     with patch('modal.Volume') as mock_volume:
         mock_instance = Mock()
         mock_volume.return_value = mock_instance
-        mock_instance.listdir.return_value = ["dataset1.jsonl", "dataset2.jsonl"]
+        mock_instance.listdir.return_value = [
+            "dataset1.jsonl", "dataset2.jsonl"]
         mock_instance.read_file.return_value = b'{"text": "sample"}\n{"text": "data"}'
         yield mock_instance
 
@@ -149,14 +149,14 @@ def mock_huggingface_datasets():
 def mock_transformers():
     """Mock transformers library."""
     with patch('transformers.AutoTokenizer') as mock_tokenizer, \
-         patch('transformers.AutoModelForCausalLM') as mock_model:
-        
+            patch('transformers.AutoModelForCausalLM') as mock_model:
+
         mock_tokenizer_instance = Mock()
         mock_tokenizer.from_pretrained.return_value = mock_tokenizer_instance
-        
+
         mock_model_instance = Mock()
         mock_model.from_pretrained.return_value = mock_model_instance
-        
+
         yield {
             'tokenizer': mock_tokenizer_instance,
             'model': mock_model_instance
@@ -191,7 +191,8 @@ def mock_storage_manager():
         mock_instance = Mock()
         mock_storage.return_value = mock_instance
         mock_instance.list_files.return_value = ["file1.jsonl", "file2.jsonl"]
-        mock_instance.upload_file.return_value = {"path": "/vol/uploaded_file.jsonl"}
+        mock_instance.upload_file.return_value = {
+            "path": "/vol/uploaded_file.jsonl"}
         mock_instance.download_file.return_value = b'{"text": "sample data"}'
         yield mock_instance
 
@@ -218,7 +219,7 @@ def mock_environment_variables():
         "MODAL_TOKEN_SECRET": "test-token-secret",
         "HUGGINGFACE_TOKEN": "test-hf-token"
     }
-    
+
     with patch.dict(os.environ, env_vars):
         yield env_vars
 
@@ -232,21 +233,21 @@ def disable_modal_imports():
 
 class MockResponse:
     """Mock HTTP response for testing."""
-    
+
     def __init__(self, json_data: Dict[str, Any], status_code: int = 200):
         self.json_data = json_data
         self.status_code = status_code
         self.text = json.dumps(json_data)
         self.headers = {"content-type": "application/json"}
-    
+
     def json(self) -> Dict[str, Any]:
         return self.json_data
-    
+
     def raise_for_status(self):
         if self.status_code >= 400:
             raise httpx.HTTPStatusError(
-                f"HTTP {self.status_code}", 
-                request=Mock(), 
+                f"HTTP {self.status_code}",
+                request=Mock(),
                 response=self
             )
 
@@ -256,7 +257,7 @@ def mock_http_responses():
     """Factory for creating mock HTTP responses."""
     def _create_mock_response(json_data: Dict[str, Any], status_code: int = 200):
         return MockResponse(json_data, status_code)
-    
+
     return _create_mock_response
 
 
@@ -264,11 +265,11 @@ def mock_http_responses():
 def pytest_configure(config):
     """Configure pytest with custom settings."""
     config.addinivalue_line(
-        "markers", 
+        "markers",
         "integration: marks tests as integration tests"
     )
     config.addinivalue_line(
-        "markers", 
+        "markers",
         "modal: marks tests that require Modal.com connection"
     )
 
@@ -297,7 +298,7 @@ def assert_valid_job_id(job_id: str):
 def assert_valid_training_config(config: Dict[str, Any]):
     """Assert that a training configuration is valid."""
     required_fields = [
-        "model_name", "dataset_path", "output_dir", 
+        "model_name", "dataset_path", "output_dir",
         "num_train_epochs", "learning_rate"
     ]
     for field in required_fields:

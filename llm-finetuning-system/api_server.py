@@ -4,7 +4,7 @@ import json
 import time
 import logging
 from typing import Dict, List, Optional, Any
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import asyncio
@@ -24,6 +24,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Lifespan management for FastAPI
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -64,6 +66,8 @@ api_app.include_router(datasets_router, prefix="/api", tags=["datasets"])
 api_app.include_router(modal_status_router, prefix="/api", tags=["modal"])
 
 # Root endpoint
+
+
 @api_app.get("/", tags=["root"])
 async def root():
     """Root endpoint with API information"""
@@ -81,6 +85,16 @@ async def root():
     }
 
 # Legacy endpoints for backward compatibility
+
+
+@api_app.post("/api/upload", tags=["upload"])
+async def upload_file(file: UploadFile = File(...)):
+    """Legacy upload endpoint for backward compatibility"""
+    # Forward to the datasets upload endpoint
+    from api.datasets import upload_dataset
+    return await upload_dataset(file=file)
+
+
 @api_app.get("/api/models", tags=["models"])
 async def list_models():
     """List available models"""
@@ -93,17 +107,36 @@ async def list_models():
             # Return mock data for development
             return {
                 "models": [
-                    {"name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0", "type": "huggingface"},
+                    {"name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                        "type": "huggingface"},
                     {"name": "microsoft/DialoGPT-medium", "type": "huggingface"},
                     {"name": "meta-llama/Llama-2-7b-chat-hf", "type": "huggingface"},
-                    {"name": "finetuned_model_v1", "type": "volume", "path": "/vol/finetuned_model_v1"}
+                    {"name": "finetuned_model_v1", "type": "volume",
+                        "path": "/vol/finetuned_model_v1"}
                 ]
             }
     except Exception as e:
         logger.error(f"Error listing models: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list models: {str(e)}")
+
+
+@api_app.post("/api/upload", tags=["datasets"])
+async def upload_file(
+    file: UploadFile = File(...),
+    name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None)
+):
+    """
+    General file upload endpoint - delegates to datasets upload
+    This endpoint is expected by tests
+    """
+    from api.datasets import upload_dataset
+    return await upload_dataset(file, name, description, tags=None)
 
 # Error handlers
+
+
 @api_app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     from fastapi.responses import JSONResponse
@@ -112,6 +145,7 @@ async def http_exception_handler(request, exc):
         status_code=exc.status_code,
         content={"error": exc.detail, "status_code": exc.status_code}
     )
+
 
 @api_app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
@@ -127,4 +161,3 @@ if __name__ == "__main__":
 
 # Alias for testing
 app = api_app
-

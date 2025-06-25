@@ -51,6 +51,7 @@ async def get_modal_status() -> Dict[str, Any]:
         response = {
             "connected": connected,
             "environment": modal_profile,
+            "app_name": "llm-finetuner",
             "app_status": app_status,
             "error": error_message,
             "timestamp": time.time(),
@@ -63,6 +64,7 @@ async def get_modal_status() -> Dict[str, Any]:
         return {
             "connected": False,
             "environment": "unknown",
+            "app_name": "llm-finetuner",
             "app_status": "modal_not_installed",
             "error": "Modal library not available in serverless environment",
             "timestamp": time.time(),
@@ -72,6 +74,7 @@ async def get_modal_status() -> Dict[str, Any]:
         return {
             "connected": False,
             "environment": "unknown",
+            "app_name": "llm-finetuner",
             "app_status": "error",
             "error": str(e),
             "timestamp": time.time(),
